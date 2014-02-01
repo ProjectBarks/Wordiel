@@ -8,11 +8,14 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import lombok.Getter;
 import lombok.Setter;
+import wordielv2.generator.properties.PlacementGenerator;
 import wordielv2.generator.properties.WColorer;
 import wordielv2.generator.properties.WRotator;
 import wordielv2.generator.properties.WSizer;
@@ -31,7 +34,8 @@ public class WordielEngine {
     private List<Word> words;
     @Getter
     private Shape shape;
-    private Iterator<EngineWord> iterator;
+    @Getter
+    private Rectangle2D shapeBounds;
     private QuadTree<EngineWord> tree;
     @Getter
     @Setter
@@ -45,22 +49,17 @@ public class WordielEngine {
 
     public WordielEngine(Shape shape) {
         this.shape = shape;
-        Rectangle2D rec = shape.getBounds2D();
-        tree = new QuadTree<EngineWord>(0, 0, rec.getMaxX(), rec.getMaxY());
+        shapeBounds = shape.getBounds2D();
+        tree = new QuadTree<EngineWord>(0, 0, shapeBounds.getMaxX(), shapeBounds.getMaxY());
         words = new ArrayList<Word>();
         Default def = new Default();
         colorer = def;
         rotator = def;
         sizer = def;
-        SpiralGenerator gen = new SpiralGenerator(new Vector(rec.getWidth() / 2, rec.getHeight() / 2));
-        int area = (int) (rec.getWidth() * rec.getHeight());
-        for (int i = 0; i < area; i++) {
-            vec.add(gen.nextSegment());
-        }
     }
 
     public BufferedImage draw() {
-        BufferedImage buffer = new BufferedImage((int) shape.getBounds2D().getWidth(), (int) shape.getBounds2D().getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage buffer = new BufferedImage((int) shapeBounds.getWidth(), (int) shapeBounds.getHeight(), BufferedImage.TYPE_INT_RGB);
         // Creating graphics to do our dirty work ;)
         Graphics2D g2 = buffer.createGraphics();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -72,6 +71,14 @@ public class WordielEngine {
     }
 
     public void generate() {
+        generate(new RectSpiralGenerator(new Vector(shapeBounds.getWidth() / 2, shapeBounds.getHeight() / 2)));
+    }
+
+    public void generate(PlacementGenerator gen) {
+        int area = (int) (shapeBounds.getWidth() * shapeBounds.getHeight());
+        for (int i = 0; i < area; i++) {
+            vec.add(gen.nextSegment());
+        }
         tree.clear();
         int lastTested = 0;
         for (EngineWord word : toEngineWords()) {
@@ -99,7 +106,7 @@ public class WordielEngine {
             }
 
             boolean foundOverlap = false;
-            for (EngineWord otherWord : tree.get(v.getX(), v.getY(), area )) {
+            for (EngineWord otherWord : tree.get(v.getX(), v.getY(), 200)) {
                 if (eWord.overlaps(otherWord)) {
                     foundOverlap = true;
                     lastCollidedWith = otherWord;
@@ -125,6 +132,7 @@ public class WordielEngine {
 
             EngineWord engineWord = new EngineWord(w);
             Shape s = WordShaper.getShapeFor(w.getWord(), w.getFont(), w.getWeight(), w.getAngle());
+            System.out.println(s == null);
             //TODO add properties
             if (!isTooSmall(s, 7)) {
                 //TODO Add Properties
@@ -132,6 +140,7 @@ public class WordielEngine {
                 eWords.add(engineWord); // DON'T add eWords with no shape.
             }
         }
+        //Collections.shuffle(eWords);
         return eWords;
     }
 
@@ -139,8 +148,7 @@ public class WordielEngine {
         if (minShapeSize < 1) {
             minShapeSize = 1;
         }
-        Rectangle2D r = shape.getBounds2D();
-        return r.getHeight() < minShapeSize || r.getWidth() < minShapeSize;
+        return shape.getBounds().getHeight() < minShapeSize || shape.getBounds().getWidth() < minShapeSize;
     }
 
     public void addWord(Word word) {
@@ -151,40 +159,47 @@ public class WordielEngine {
         words.remove(word);
     }
 
+    public List<Word> getWords() {
+        return Collections.unmodifiableList(words);
+    }
+
     private class Default implements WColorer, WRotator, WSizer {
 
-        private static final int tiny = 5, small = 8, medium = 15, larger = 25, largest = 35;
+        private static final int tiny = 5, small = 8, medium = 15, larger = 35, largest = 40;
         private Random numGen = new Random();
 
         @Override
         public Color generateColor(Word word) {
-            
+
             return new Color(numGen.nextInt(256), numGen.nextInt(256), numGen.nextInt(256));
         }
 
         @Override
         public float generateRotation(Word word) {
             return (float) Math.toRadians(numGen.nextInt(360));
-            //return 0;
+            //return (float) Math.toRadians(((int) (Math.random() * 4)) * 90);
         }
 
         @Override
         public float generateSize(String word) {
-           return numGen.nextInt(50);
-          //  return 20;
-           /* int probabilityDecider = new Random().nextInt(100);
-            if (probabilityDecider <= 5) {
-                return tiny;
-            } else if (probabilityDecider < 25) {
-                return small;
-            } else if (probabilityDecider < 60) {
-                return medium;
-            } else if (probabilityDecider < 75) {
-                return larger;
-            } else if (probabilityDecider >= 95) {
-                return largest;
-            }
-            return medium;*/
+            return numGen.nextInt(50);
+
+            /*
+             * return 20;
+             
+             int probabilityDecider = new Random().nextInt(100);
+             if (probabilityDecider <= 5) {
+             return tiny;
+             } else if (probabilityDecider < 25) {
+             return small;
+             } else if (probabilityDecider < 60) {
+             return medium;
+             } else if (probabilityDecider < 75) {
+             return larger;
+             } else if (probabilityDecider >= 95) {
+             return largest;
+             }
+             return medium;*/
         }
     }
 }

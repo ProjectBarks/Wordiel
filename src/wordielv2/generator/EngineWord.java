@@ -2,6 +2,7 @@ package wordielv2.generator;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import lombok.Getter;
 import lombok.Setter;
 import wordielv2.generator.utils.WordShaper;
@@ -14,6 +15,7 @@ public class EngineWord implements Comparable<EngineWord>, Cloneable {
 
     @Getter
     private Shape shape;
+    private Rectangle2D bounds;
     private Shape template;
     protected BBTree bBTree;
     @Getter
@@ -34,6 +36,7 @@ public class EngineWord implements Comparable<EngineWord>, Cloneable {
     public void setShape(Shape shape, int swelling) {
         this.template = shape;
         this.shape = shape;
+        this.bounds = shape.getBounds();
         this.bBTree = BBTree.makeTree(shape, swelling);
     }
 

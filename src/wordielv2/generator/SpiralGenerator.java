@@ -1,46 +1,56 @@
 package wordielv2.generator;
 
-public class SpiralGenerator {
+import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
+import wordielv2.generator.properties.PlacementGenerator;
 
-    public SpiralGenerator(Vector spiralElement) {
-        this.spiralElement = spiralElement;
+/**
+ *
+ * @author Brandon Barker
+ */
+public class SpiralGenerator implements PlacementGenerator {
+
+    private static double TWO_PI = Math.PI * 2;
+    
+    public SpiralGenerator(WordielEngine eg) {
+        this(eg, new Vector(eg.getShapeBounds().getWidth() / 2, eg.getShapeBounds().getHeight() /2));
+    }
+    
+    public SpiralGenerator(WordielEngine eg, Vector center) {
+        this(eg.getShapeBounds(), eg.getWords().size(), center);
+    }
+    
+    public SpiralGenerator(Rectangle2D bounds, int wordAmount, Vector spiral) {
+        this.spiralElement = spiral;
+        this.fieldWidth = bounds.getWidth();
+        this.wordAmount = wordAmount;
         reset();
     }
+    
     private Vector spiralElement;
-    private int count;
+    private int count, wordAmount;
+    private double fieldWidth;
 
+    @Override
     public Vector nextSegment() {
         count++;
         return this.getCoordinateInSpiral(count);
     }
 
+    @Override
     public final void reset() {
         count = 0;
     }
 
-    /**
-     * Returns the next segment of the spiral.
-     *
-     * @param n
-     * @return the next segment
-     */
-    public Vector getCoordinateInSpiral(int n) {
-        int x = (int) spiralElement.getX(), z = (int) spiralElement.getY();
-        if (n - 1 >= 0) {
-            int v = (int) Math.floor(Math.sqrt(n + .25) - 0.5);
-            int spiralBaseIndex = v * (v + 1);
-            int flipFlop = ((v & 1) << 1) - 1;
-            int offset = flipFlop * ((v + 1) >> 1);
-            x += offset;
-            z += offset;
-            int cornerIndex = spiralBaseIndex + (v + 1);
-            if (n < cornerIndex) {
-                x -= flipFlop * (n - spiralBaseIndex + 1);
-            } else {
-                x -= flipFlop * (v + 1);
-                z -= flipFlop * (n - cornerIndex + 1);
-            }
-        }
-        return new Vector(x, z);
+    private Vector getCoordinateInSpiral(int wordIndex) {
+        float normalizedIndex = (float) wordIndex / wordAmount;
+
+        double theta = normalizedIndex * 6 * TWO_PI;
+        double radius = normalizedIndex * fieldWidth / 2f;
+
+        double x = Math.cos(theta) * radius;
+        double y = Math.sin(theta) * radius;
+
+        return new Vector(spiralElement.getX() + x, spiralElement.getY() + y);
     }
 }
