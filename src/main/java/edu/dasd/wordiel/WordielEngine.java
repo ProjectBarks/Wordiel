@@ -50,6 +50,8 @@ public class WordielEngine {
     @Getter
     @Setter
     private WSizer sizer;
+	@Getter
+	private GeneratorStatus status = GeneratorStatus.INACTIVE;
 
     public WordielEngine(Shape shape) {
         this.shape = shape;
@@ -82,7 +84,7 @@ public class WordielEngine {
         if (service == null) {
             service = Executors.newCachedThreadPool();
         }
-
+	    status = GeneratorStatus.ACTIVE;
         service.submit(new Runnable() {
             @Override
             public void run() {
@@ -98,10 +100,15 @@ public class WordielEngine {
                 for (EngineWord word : engineWords) {
                     placeWord(gen, word, calculateMaxAttemptsFromWordWeight(word), radi);
                 }
+	            status = GeneratorStatus.INACTIVE;
                 System.out.println(System.currentTimeMillis() - start);
             }
         });
     }
+
+	public boolean isGeneratorActive(){
+		return status == GeneratorStatus.ACTIVE;
+	}
 
     private int placeWord(PlacementGenerator gen, EngineWord eWord, int maxAttempts, double radi) {
 
