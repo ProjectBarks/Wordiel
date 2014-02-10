@@ -1,6 +1,5 @@
 package edu.dasd.wordiel;
 
-<<<<<<< HEAD
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -42,9 +41,14 @@ public class Wordiel {
                     wordielGenerator.addWord(new Word("" + i, new Font("Lucid", Font.PLAIN, 20), 30));
                 }
                 wordielGenerator.generate(new SpiralGenerator(wordielGenerator));
-                while(wordielGenerator.isGeneratorActive()) {
+                while (wordielGenerator.isGeneratorActive()) {
                     System.out.println(wordielGenerator.getPercentCompleted());
                 }
+                g2.drawRect(0, 0, WIDTH, HEIGHT);
+                g2.drawImage(wordielGenerator.draw(), 0, 0, null);
+                System.out.println("DRW");
+            } catch (Exception ex) {
+                Logger.getLogger(Wordiel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
