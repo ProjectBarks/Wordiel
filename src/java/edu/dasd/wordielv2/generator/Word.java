@@ -2,14 +2,13 @@ package edu.dasd.wordielv2.generator;
 
 import java.awt.Color;
 import java.awt.Font;
+
+import edu.dasd.wordielv2.generator.properties.WColorer;
+import edu.dasd.wordielv2.generator.properties.WRotator;
+import edu.dasd.wordielv2.generator.properties.WSizer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
-import wordielv2.generator.properties.WColorer;
-import wordielv2.generator.properties.WProperty;
-import wordielv2.generator.properties.WRotator;
-import wordielv2.generator.properties.WSizer;
 
 /**
  *

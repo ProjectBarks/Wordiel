@@ -1,6 +1,7 @@
 package edu.dasd.wordielv2.generator.properties;
 
-import wordielv2.generator.Vector;
+
+import edu.dasd.wordielv2.generator.Vector;
 
 /**
  *
