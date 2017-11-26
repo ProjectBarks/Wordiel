@@ -1,4 +1,4 @@
-#Wordiel	
+# Wordiel	
 
 Inspired by [Wordle](http://www.wordle.net/) I attempted to make an Open Source version of API that would allow developers to easily generate word clouds. This was a fun project to make because it required an extensive math knowledge and pushed my technical ability to the next level implementing and learning algorithms to make my tool more efficient.
 
@@ -6,7 +6,7 @@ Inspired by [Wordle](http://www.wordle.net/) I attempted to make an Open Source 
 
 <p align="center">
 
-​	<img src="http://i.imgur.com/4YRxjSC.png"/>
+  <img src="http://i.imgur.com/4YRxjSC.png"/>
 
 </p>
 
